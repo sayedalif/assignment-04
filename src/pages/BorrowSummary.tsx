@@ -23,10 +23,18 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { useGetBorrowedBooksSummaryQuery } from '@/redux/api/baseApi';
+import type { BorrowSummaryItem, BorrowSummaryResponse } from '@/types/types';
 
 const BorrowSummary = () => {
-  const { data, isLoading, isError } =
-    useGetBorrowedBooksSummaryQuery(undefined);
+  const {
+    data,
+    isLoading,
+    isError,
+  }: {
+    data?: BorrowSummaryResponse;
+    isLoading: boolean;
+    isError: boolean;
+  } = useGetBorrowedBooksSummaryQuery(undefined);
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-violet-50 via-white to-indigo-50 p-4 sm:p-6 lg:p-8'>
@@ -63,7 +71,9 @@ const BorrowSummary = () => {
               <div className='flex items-center justify-center py-12'>
                 <div className='flex flex-col items-center gap-4'>
                   <Loader2 className='h-8 w-8 animate-spin text-violet-600' />
-                  <p className='text-gray-600 font-medium'>Loading borrow summary...</p>
+                  <p className='text-gray-600 font-medium'>
+                    Loading borrow summary...
+                  </p>
                 </div>
               </div>
             )}
@@ -73,7 +83,8 @@ const BorrowSummary = () => {
               <Alert className='border-red-200 bg-red-50 shadow-sm rounded-xl animate-in slide-in-from-top-1 duration-300'>
                 <AlertCircle className='h-5 w-5 text-red-600' />
                 <AlertDescription className='text-red-800 font-medium'>
-                  Something went wrong while fetching the borrow summary. Please try again later.
+                  Something went wrong while fetching the borrow summary. Please
+                  try again later.
                 </AlertDescription>
               </Alert>
             )}
@@ -120,34 +131,38 @@ const BorrowSummary = () => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      data.data.map((borrowedBook, index) => (
-                        <TableRow 
-                          key={borrowedBook.book.isbn}
-                          className={`hover:bg-violet-50/50 transition-colors duration-200 ${
-                            index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
-                          }`}
-                        >
-                          <TableCell className='px-6 py-4 font-medium text-gray-900'>
-                            <div className='flex items-center gap-3'>
-                              <div className='w-2 h-2 bg-violet-500 rounded-full'></div>
-                              {borrowedBook.book.title}
-                            </div>
-                          </TableCell>
-                          <TableCell className='px-6 py-4 font-medium text-gray-700'>
-                            <code className='bg-gray-100 px-2 py-1 rounded text-sm'>
-                              {borrowedBook.book.isbn}
-                            </code>
-                          </TableCell>
-                          <TableCell className='px-6 py-4 font-bold text-right'>
-                            <div className='flex items-center justify-end gap-2'>
-                              <span className='bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent text-lg'>
-                                {borrowedBook.totalQuantity}
-                              </span>
-                              <span className='text-gray-400 text-sm'>copies</span>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                      data.data.map(
+                        (borrowedBook: BorrowSummaryItem, index: number) => (
+                          <TableRow
+                            key={borrowedBook.book.isbn}
+                            className={`hover:bg-violet-50/50 transition-colors duration-200 ${
+                              index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'
+                            }`}
+                          >
+                            <TableCell className='px-6 py-4 font-medium text-gray-900'>
+                              <div className='flex items-center gap-3'>
+                                <div className='w-2 h-2 bg-violet-500 rounded-full'></div>
+                                {borrowedBook.book.title}
+                              </div>
+                            </TableCell>
+                            <TableCell className='px-6 py-4 font-medium text-gray-700'>
+                              <code className='bg-gray-100 px-2 py-1 rounded text-sm'>
+                                {borrowedBook.book.isbn}
+                              </code>
+                            </TableCell>
+                            <TableCell className='px-6 py-4 font-bold text-right'>
+                              <div className='flex items-center justify-end gap-2'>
+                                <span className='bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent text-lg'>
+                                  {borrowedBook.totalQuantity}
+                                </span>
+                                <span className='text-gray-400 text-sm'>
+                                  copies
+                                </span>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      )
                     )}
                   </TableBody>
                 </Table>
@@ -163,39 +178,54 @@ const BorrowSummary = () => {
                       <BookOpen className='h-5 w-5 text-violet-600' />
                     </div>
                     <div>
-                      <p className='text-sm font-medium text-gray-600'>Total Books</p>
+                      <p className='text-sm font-medium text-gray-600'>
+                        Total Books
+                      </p>
                       <p className='text-2xl font-bold text-violet-600'>
                         {data.data.length}
                       </p>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className='bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl border border-indigo-200'>
                   <div className='flex items-center gap-3'>
                     <div className='p-2 bg-indigo-100 rounded-lg'>
                       <TrendingUp className='h-5 w-5 text-indigo-600' />
                     </div>
                     <div>
-                      <p className='text-sm font-medium text-gray-600'>Total Borrowed</p>
+                      <p className='text-sm font-medium text-gray-600'>
+                        Total Borrowed
+                      </p>
                       <p className='text-2xl font-bold text-indigo-600'>
-                        {data.data.reduce((sum, item) => sum + item.totalQuantity, 0)}
+                        {data.data.reduce(
+                          (sum: number, item: BorrowSummaryItem) =>
+                            sum + item.totalQuantity,
+                          0
+                        )}
                       </p>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className='bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200'>
                   <div className='flex items-center gap-3'>
                     <div className='p-2 bg-purple-100 rounded-lg'>
                       <BarChart3 className='h-5 w-5 text-purple-600' />
                     </div>
                     <div>
-                      <p className='text-sm font-medium text-gray-600'>Avg. Per Book</p>
+                      <p className='text-sm font-medium text-gray-600'>
+                        Avg. Per Book
+                      </p>
                       <p className='text-2xl font-bold text-purple-600'>
                         {Math.round(
-                          data.data.reduce((sum, item) => sum + item.totalQuantity, 0) / 
-                          data.data.length * 10
+                          (data.data.reduce(
+                            (sum: number, item: BorrowSummaryItem) =>
+                              sum + item.totalQuantity,
+                            0
+                          ) /
+                            data.data.length) *
+                            10
                         ) / 10}
                       </p>
                     </div>

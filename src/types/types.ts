@@ -14,3 +14,17 @@ export interface Book {
 export interface BooksTableProps {
   book: Book;
 };
+
+export type BorrowSummaryItem = {
+  totalQuantity: number;
+  book: {
+    title: string;
+    isbn: string;
+  };
+};
+
+export type BorrowSummaryResponse = {
+  success: boolean;
+  message: string;
+  data: BorrowSummaryItem[];
+};

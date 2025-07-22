@@ -19,7 +19,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, CheckCircle, AlertCircle, Loader2, BookOpen, Calendar } from 'lucide-react';
+import {
+  Edit,
+  Trash2,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  BookOpen,
+  Calendar,
+} from 'lucide-react';
 
 import {
   AlertDialog,
@@ -61,49 +69,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useNavigate } from 'react-router';
-
-// Same validation schema as AddBook
-const bookSchema = z.object({
-  title: z.string().min(1, 'Book title is required').trim(),
-  author: z.string().min(1, 'Author name is required').trim(),
-  genre: z.enum(
-    ['FICTION', 'NON_FICTION', 'SCIENCE', 'HISTORY', 'BIOGRAPHY', 'FANTASY'],
-    {
-      message: 'Please select a valid genre',
-    }
-  ),
-  isbn: z
-    .string()
-    .min(1, 'ISBN is required')
-    .trim()
-    .regex(
-      /^(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$/,
-      'Please enter a valid ISBN'
-    ),
-  copies: z
-    .number()
-    .int('Copies must be an integer')
-    .min(0, 'Copies cannot be negative'),
-  description: z.string().trim().optional(),
-  available: z.boolean().default(true).optional(),
-});
-
-// Borrow form validation schema
-const borrowSchema = z.object({
-  quantity: z
-    .number()
-    .int('Quantity must be an integer')
-    .min(1, 'Quantity must be at least 1'),
-  dueDate: z
-    .string()
-    .min(1, 'Due date is required')
-    .refine((date) => {
-      const selectedDate = new Date(date);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      return selectedDate > today;
-    }, 'Due date must be in the future'),
-});
+import { bookSchema, borrowSchema } from '@/schema/schema';
 
 type BookFormData = z.infer<typeof bookSchema>;
 type BorrowFormData = z.infer<typeof borrowSchema>;
@@ -111,7 +77,7 @@ type BorrowFormData = z.infer<typeof borrowSchema>;
 // Skeleton Components
 const TableSkeleton = () => {
   return (
-    <div className="space-y-4">
+    <div className='space-y-4'>
       <Table>
         <TableHeader>
           <TableRow>
@@ -129,33 +95,33 @@ const TableSkeleton = () => {
           {Array.from({ length: 8 }).map((_, index) => (
             <TableRow key={index}>
               <TableCell>
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-32"></div>
+                <div className='h-4 bg-gray-200 rounded animate-pulse w-32'></div>
               </TableCell>
               <TableCell>
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-24"></div>
+                <div className='h-4 bg-gray-200 rounded animate-pulse w-24'></div>
               </TableCell>
               <TableCell>
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-20"></div>
+                <div className='h-4 bg-gray-200 rounded animate-pulse w-20'></div>
               </TableCell>
               <TableCell>
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-28"></div>
+                <div className='h-4 bg-gray-200 rounded animate-pulse w-28'></div>
               </TableCell>
               <TableCell>
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-12"></div>
+                <div className='h-4 bg-gray-200 rounded animate-pulse w-12'></div>
               </TableCell>
               <TableCell>
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-8"></div>
+                <div className='h-4 bg-gray-200 rounded animate-pulse w-8'></div>
               </TableCell>
               <TableCell>
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-40"></div>
+                <div className='h-4 bg-gray-200 rounded animate-pulse w-40'></div>
               </TableCell>
-              <TableCell className="flex flex-col items-center justify-end space-y-2">
-                <div className="h-8 bg-gray-200 rounded animate-pulse w-16"></div>
-                <div className="flex items-center justify-end space-x-2">
-                  <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
-                  <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+              <TableCell className='flex flex-col items-center justify-end space-y-2'>
+                <div className='h-8 bg-gray-200 rounded animate-pulse w-16'></div>
+                <div className='flex items-center justify-end space-x-2'>
+                  <div className='h-8 w-8 bg-gray-200 rounded animate-pulse'></div>
+                  <div className='h-8 w-8 bg-gray-200 rounded animate-pulse'></div>
                 </div>
-                <div className="h-8 bg-gray-200 rounded animate-pulse w-16"></div>
+                <div className='h-8 bg-gray-200 rounded animate-pulse w-16'></div>
               </TableCell>
             </TableRow>
           ))}
@@ -168,19 +134,23 @@ const TableSkeleton = () => {
 // Error Component
 const ErrorState = () => {
   return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <div className="text-center space-y-4">
-        <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center">
-          <AlertCircle className="w-8 h-8 text-red-600" />
+    <div className='flex items-center justify-center min-h-[400px]'>
+      <div className='text-center space-y-4'>
+        <div className='w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center'>
+          <AlertCircle className='w-8 h-8 text-red-600' />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">Something went wrong</h3>
-          <p className="text-gray-600 mt-1">Unable to load books. Please try again later.</p>
+          <h3 className='text-lg font-semibold text-gray-900'>
+            Something went wrong
+          </h3>
+          <p className='text-gray-600 mt-1'>
+            Unable to load books. Please try again later.
+          </p>
         </div>
-        <Button 
-          variant="outline" 
+        <Button
+          variant='outline'
           onClick={() => window.location.reload()}
-          className="mt-4"
+          className='mt-4'
         >
           Try Again
         </Button>
@@ -226,7 +196,9 @@ const BorrowBookDialog = ({
       setSuccessMessage('');
 
       // Convert date to ISO string for backend
-      const dueDateISO = new Date(data.dueDate + 'T00:00:00.000Z').toISOString();
+      const dueDateISO = new Date(
+        data.dueDate + 'T00:00:00.000Z'
+      ).toISOString();
 
       const borrowData = {
         book: book._id,
@@ -256,7 +228,7 @@ const BorrowBookDialog = ({
       if (error.data?.errors) {
         // Handle validation errors from backend
         const backendErrors = error.data.errors;
-        
+
         // Check for quantity-specific errors
         if (backendErrors.quantity) {
           form.setError('quantity', {
@@ -264,12 +236,12 @@ const BorrowBookDialog = ({
             message: backendErrors.quantity,
           });
         }
-        
+
         // Check for book availability errors
         if (backendErrors.book) {
           setErrorMessage(backendErrors.book);
         }
-        
+
         // Handle other field errors
         Object.keys(backendErrors).forEach(field => {
           if (field !== 'quantity' && field !== 'book') {
@@ -302,8 +274,8 @@ const BorrowBookDialog = ({
     <Dialog open={isOpen} onOpenChange={handleDialogClose}>
       <DialogContent className='sm:max-w-[450px] max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5" />
+          <DialogTitle className='flex items-center gap-2'>
+            <BookOpen className='h-5 w-5' />
             Borrow Book
           </DialogTitle>
           <DialogDescription>
@@ -312,10 +284,15 @@ const BorrowBookDialog = ({
         </DialogHeader>
 
         {/* Book Info */}
-        <div className="bg-gray-50 p-3 rounded-md">
-          <div className="text-sm space-y-1">
-            <p><span className="font-medium">Available Copies:</span> {book.copies}</p>
-            <p><span className="font-medium">Genre:</span> {book.genre}</p>
+        <div className='bg-gray-50 p-3 rounded-md'>
+          <div className='text-sm space-y-1'>
+            <p>
+              <span className='font-medium'>Available Copies:</span>{' '}
+              {book.copies}
+            </p>
+            <p>
+              <span className='font-medium'>Genre:</span> {book.genre}
+            </p>
           </div>
         </div>
 
@@ -363,7 +340,7 @@ const BorrowBookDialog = ({
                       }
                     />
                   </FormControl>
-                  <p className="text-xs text-gray-500">
+                  <p className='text-xs text-gray-500'>
                     Maximum available: {book.copies}
                   </p>
                   <FormMessage />
@@ -379,7 +356,7 @@ const BorrowBookDialog = ({
                 <FormItem>
                   <FormLabel>Due Date *</FormLabel>
                   <FormControl>
-                    <div className="relative">
+                    <div className='relative'>
                       <Input
                         type='date'
                         min={getTomorrowDate()}
@@ -388,10 +365,10 @@ const BorrowBookDialog = ({
                           form.formState.errors.dueDate ? 'border-red-500' : ''
                         }`}
                       />
-                      <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                      <Calendar className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none' />
                     </div>
                   </FormControl>
-                  <p className="text-xs text-gray-500">
+                  <p className='text-xs text-gray-500'>
                     Select when you plan to return the book
                   </p>
                   <FormMessage />
@@ -400,11 +377,15 @@ const BorrowBookDialog = ({
             />
 
             <DialogFooter>
-              <Button type='button' variant='outline' onClick={() => handleDialogClose(false)}>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={() => handleDialogClose(false)}
+              >
                 Cancel
               </Button>
-              <Button 
-                type='submit' 
+              <Button
+                type='submit'
                 disabled={isLoading || !book.available || book.copies === 0}
               >
                 {isLoading ? (
@@ -487,11 +468,12 @@ const EditBookDialog = ({
       // Ensure availability is false when copies is 0
       const bookData = {
         ...data,
-        available: data.copies === 0 ? false : (
-          String(data.available) === 'true' || data.available === undefined
+        available:
+          data.copies === 0
+            ? false
+            : String(data.available) === 'true' || data.available === undefined
             ? true
-            : false
-        ),
+            : false,
         copies: Number(data.copies),
       };
 
@@ -706,7 +688,13 @@ const EditBookDialog = ({
                   disabled={watchedCopies === 0} // Disable when copies is 0
                 >
                   <FormControl>
-                    <SelectTrigger className={`w-full ${watchedCopies === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    <SelectTrigger
+                      className={`w-full ${
+                        watchedCopies === 0
+                          ? 'opacity-50 cursor-not-allowed'
+                          : ''
+                      }`}
+                    >
                       <SelectValue placeholder='Select availability' />
                     </SelectTrigger>
                   </FormControl>
@@ -718,8 +706,9 @@ const EditBookDialog = ({
                   </SelectContent>
                 </Select>
                 {watchedCopies === 0 && (
-                  <p className="text-xs text-orange-600 mt-1">
-                    Availability is automatically set to "Not Available" when copies is 0
+                  <p className='text-xs text-orange-600 mt-1'>
+                    Availability is automatically set to "Not Available" when
+                    copies is 0
                   </p>
                 )}
                 <FormMessage />
@@ -787,7 +776,7 @@ export default function Books() {
     return <ErrorState />;
   }
 
-  const handleBookDetails = bookId => {
+  const handleBookDetails = (bookId: string) => {
     return navigate(`/books/${bookId}`);
   };
 
@@ -796,7 +785,7 @@ export default function Books() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className='space-y-4'>
       <Table>
         <TableHeader>
           <TableRow>
@@ -884,13 +873,15 @@ export default function Books() {
                     </AlertDialogContent>
                   </AlertDialog>
                 </div>
-                <Button 
-                  variant='outline' 
+                <Button
+                  variant='outline'
                   className='cursor-pointer'
                   onClick={() => handleBorrowClick(book)}
                   disabled={!book.available || book.copies === 0}
                 >
-                  {!book.available || book.copies === 0 ? 'Unavailable' : 'Borrow'}
+                  {!book.available || book.copies === 0
+                    ? 'Unavailable'
+                    : 'Borrow'}
                 </Button>
               </TableCell>
             </TableRow>

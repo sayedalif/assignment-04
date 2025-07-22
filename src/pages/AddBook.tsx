@@ -45,33 +45,9 @@ import { z } from 'zod';
 import { useState } from 'react';
 import { useCreateBookMutation } from '@/redux/api/baseApi';
 import { useNavigate } from 'react-router';
+import { bookSchema } from '@/schema/schema';
 
 // Zod schema for form validation (matching your backend schema)
-const bookSchema = z.object({
-  title: z.string().min(1, 'Book title is required').trim(),
-  author: z.string().min(1, 'Author name is required').trim(),
-  genre: z.enum(
-    ['FICTION', 'NON_FICTION', 'SCIENCE', 'HISTORY', 'BIOGRAPHY', 'FANTASY'],
-    {
-      message: 'Please select a valid genre',
-    }
-  ),
-  isbn: z
-    .string()
-    .min(1, 'ISBN is required')
-    .trim()
-    .regex(
-      /^(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]$/,
-      'Please enter a valid ISBN'
-    ),
-  copies: z
-    .number()
-    .int('Copies must be an integer')
-    .min(0, 'Copies cannot be negative'),
-  description: z.string().trim().optional(),
-  available: z.boolean().default(true).optional(),
-});
-
 type BookFormData = z.infer<typeof bookSchema>;
 
 const AddBook = () => {
