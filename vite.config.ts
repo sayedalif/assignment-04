@@ -11,8 +11,8 @@ export default defineConfig({
         target: 'https://libary-management-backend.vercel.app',
         changeOrigin: true,
         secure: false,
-        configure: (proxy, options) => {
-          proxy.on('proxyReq', (proxyReq, req, res) => {
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (_proxyReq, req, _res) => {
             console.log(
               '🔄 Proxying request:',
               req.method,
@@ -21,7 +21,7 @@ export default defineConfig({
               'https://libary-management-backend.vercel.app' + req.url
             );
           });
-          proxy.on('proxyRes', (proxyRes, req, res) => {
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
             console.log(
               '✅ Proxy response:',
               req.method,
