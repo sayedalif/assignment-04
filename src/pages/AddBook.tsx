@@ -47,16 +47,59 @@ import { useCreateBookMutation } from '@/redux/api/baseApi';
 import { useNavigate } from 'react-router';
 import { bookSchema } from '@/schema/schema';
 
+// Define types for your API response
+interface BookData {
+  _id: string;
+  title: string;
+  author: string;
+  genre: string;
+  isbn: string;
+  copies: number;
+  available: boolean;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ApiSuccessResponse {
+  data: BookData;
+  message: string;
+  success: boolean;
+}
+
+interface ValidationErrorDetail {
+  message: string;
+  name: string;
+  properties: {
+    message: string;
+    type: string;
+    min?: number;
+    max?: number;
+  };
+  kind: string;
+  path: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any;
+}
+
+interface ValidationError {
+  name: string;
+  errors: Record<string, ValidationErrorDetail>;
+}
+
+interface ApiErrorResponse {
+  message: string;
+  success: false;
+  error: ValidationError | string;
+}
+
 // Zod schema for form validation (matching your backend schema)
 type BookFormData = z.infer<typeof bookSchema>;
 
 const AddBook = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
-  const [createBook, { isLoading }] =
-    useCreateBookMutation(undefined);
-
+  const [createBook, { isLoading }] = useCreateBookMutation(undefined);
   // navigate to redirect after successful book creation
   const navigate = useNavigate();
 
@@ -83,7 +126,10 @@ const AddBook = () => {
     try {
       setErrorMessage('');
       setSuccessMessage('');
-
+      
+      // Clear any previous form errors
+      form.clearErrors();
+      
       // Transform data to match backend expectations
       const bookData = {
         ...data,
@@ -94,47 +140,80 @@ const AddBook = () => {
         copies: Number(data.copies),
       };
 
-      // console.log('Book data to be submitted:', bookData);
-
-      // Replace this with your actual API call
-      // const response = await createBookAPI(bookData);
-
-      // For demonstration, using mock API
-      const response = await createBook(bookData);
-
+      console.log('Book data to be submitted:', bookData);
+      
+      // Call the mutation
+      const response = await createBook(bookData).unwrap() as ApiSuccessResponse;
+      
       console.log('API Response:', response);
       
-      if (response?.data.success) {
-        navigate('/books'); // Redirect to books page after successful creation
+      // Check if the response indicates success
+      if (response.success) {
+        setSuccessMessage(response.message || 'Book created successfully!');
+        form.reset();
+        
+        // Clear success message after 5 seconds
+        setTimeout(() => setSuccessMessage(''), 5000);
+        
+        // Redirect to books page after successful creation
+        setTimeout(() => navigate('/books'), 2000);
       }
-
-      setSuccessMessage(response?.message || 'Book created successfully!');
-      form.reset();
-
-      // Clear success message after 5 seconds
-      setTimeout(() => setSuccessMessage(''), 5000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating book:', error);
-
-      // Handle different types of errors
-      if (error.message === 'ISBN already exists') {
-        form.setError('isbn', {
-          type: 'manual',
-          message: 'This ISBN already exists in the database',
-        });
-      } else if (error.response?.data?.errors) {
-        // Handle validation errors from backend
-        const backendErrors = error.response.data.errors;
-        Object.keys(backendErrors).forEach(field => {
-          form.setError(field as keyof BookFormData, {
-            type: 'manual',
-            message: backendErrors[field],
-          });
-        });
+      
+      // Handle RTK Query errors with proper typing
+      if (error && typeof error === 'object') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const rtqError = error as any;
+        
+        // Check if it's an RTK Query error with data
+        if (rtqError?.data) {
+          const errorResponse = rtqError.data as ApiErrorResponse;
+          
+          // Handle validation errors with field-specific error setting
+          if (errorResponse.error && typeof errorResponse.error === 'object' && 'errors' in errorResponse.error) {
+            const validationErrors = errorResponse.error.errors;
+            let hasFieldErrors = false;
+            
+            // Set individual field errors
+            Object.keys(validationErrors).forEach(fieldName => {
+              const fieldError = validationErrors[fieldName];
+              if (fieldName in form.control._formValues) {
+                form.setError(fieldName as keyof BookFormData, {
+                  type: 'manual',
+                  message: fieldError.message,
+                });
+                hasFieldErrors = true;
+              }
+            });
+            
+            // If we have field errors, also show a general message
+            if (hasFieldErrors) {
+              setErrorMessage(errorResponse.message || 'Please fix the validation errors below');
+            }
+          } 
+          // Handle ISBN duplicate error specifically
+          else if (errorResponse.message && errorResponse.message.toLowerCase().includes('isbn')) {
+            form.setError('isbn', {
+              type: 'manual',
+              message: errorResponse.message,
+            });
+          }
+          // Handle other API errors
+          else {
+            setErrorMessage(errorResponse.message || 'An error occurred while creating the book');
+          }
+        }
+        // Handle network or other RTK Query errors
+        else if (rtqError?.message) {
+          setErrorMessage(rtqError.message);
+        } else {
+          setErrorMessage('An error occurred while creating the book');
+        }
+      } else if (typeof error === 'string') {
+        setErrorMessage(error);
       } else {
-        setErrorMessage(
-          error.message || 'An error occurred while creating the book'
-        );
+        setErrorMessage('An unexpected error occurred while creating the book');
       }
     }
   };

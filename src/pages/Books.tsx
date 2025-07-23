@@ -221,6 +221,7 @@ const BorrowBookDialog = ({
         // Navigate to borrow summary page with the borrow ID
         navigate(`/borrow-summary`);
       }, 2000);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error('Error borrowing book:', error);
 
@@ -493,6 +494,7 @@ const EditBookDialog = ({
         setSuccessMessage('');
         onClose();
       }, 2000);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error('Error updating book:', error);
 
