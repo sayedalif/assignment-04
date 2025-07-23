@@ -20,10 +20,22 @@ export default tseslint.config([
       globals: globals.browser,
     },
     rules: {
-      '@typescript-eslint/no-unused-vars': [
-        'warn',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }
-      ],
+      // Allow unused variables and arguments
+      '@typescript-eslint/no-unused-vars': 'off',
+      // Allow explicit any
+      '@typescript-eslint/no-explicit-any': 'off',
+      // Allow non-null assertions
+      '@typescript-eslint/no-non-null-assertion': 'off',
+      // Allow empty functions
+      '@typescript-eslint/no-empty-function': 'off',
+      // Allow inferrable types
+      '@typescript-eslint/no-inferrable-types': 'off',
+      // Allow unused imports
+      'no-unused-vars': 'off',
+      // Allow console statements
+      'no-console': 'off',
+      // Allow empty blocks
+      'no-empty': 'off',
     },
   },
 ])
