@@ -4,7 +4,7 @@ export const baseApi = createApi({
   reducerPath: 'baseApi',
   baseQuery: fetchBaseQuery({
     baseUrl: 'https://libary-management-backend.vercel.app/api',
-    credentials: 'include',
+    // credentials: 'include',
   }),
   tagTypes: ['books', 'borrowSummary', 'bookDetails'],
   endpoints: builder => ({
